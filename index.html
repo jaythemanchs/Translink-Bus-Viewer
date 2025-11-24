@@ -1,0 +1,154 @@
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Translink Bus Viewer</title>
+	<link rel="stylesheet" href="./leaflet.css" />
+	<link rel="manifest" href="./manifest.webmanifest" />
+	<link rel="shortcut icon" href="./images/favicon_192x192.png" type="image/x-icon">
+	<link rel="apple-touch-icon" href="./images/favicon_192x192.png" type="image/x-icon">
+	<script src="./leaflet.js"></script>
+	<script src="./papaparse.min.js"></script>
+	<style>
+		@font-face {
+			font-family: "Font Awesome 5 Free";
+			font-style: normal;
+			font-weight: 900;
+			font-display: block;
+			src: url(./awesome.woff2) format("woff2");
+		}
+
+		* {
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+		}
+
+		body {
+			padding: 0;
+			margin: 0;
+		}
+
+		html,
+		body,
+		#map {
+			height: 100%;
+			width: 100vw;
+		}
+
+		#searchbox {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			min-width: min(calc(100% - 84px), 400px);
+			max-width: calc(100% - 84px);
+			height: 40px;
+			background: white;
+			z-index: 1000;
+			max-height: calc(100% - 80px);
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+
+		#filterbox {
+			position: absolute;
+			top: 80px;
+			right: 20px;
+			width: 200px;
+			height: 40px;
+			background: white;
+			z-index: 999;
+			max-height: calc(100% - 80px);
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+
+		#searchbox::-webkit-scrollbar,
+		#filterbox::-webkit-scrollbar {
+			display: none;
+		}
+
+		#searchbox>input,
+		#filterbox>input {
+			position: sticky;
+			top: 0;
+		}
+
+		#searchbox>input,
+		#searchbox>div,
+		#filterbox>input {
+			width: 100%;
+			height: 40px;
+			border: none;
+			padding: 0px 14px;
+			border-radius: 16px;
+			font-size: 18px;
+			text-align: right;
+		}
+
+		#searchbox>div {
+			border-radius: 0px;
+			font-size: 16px;
+			height: 26px;
+			width: 100%;
+			min-width: -webkit-fill-available;
+			border-top: 1px solid #ddd;
+			cursor: pointer;
+			box-sizing: border-box;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			white-space: nowrap;
+		}
+
+		#searchbox>div:first-child {
+			border-top: none;
+		}
+
+		#searchbox>div:hover {
+			background-color: #f4f4f4;
+		}
+
+		#searchbox.open,
+		#filterbox.open {
+			height: fit-content;
+		}
+
+		#searchbox.open>input,
+		#filterbox.open>input {
+			border-radius: 16px 16px 0px 0px;
+			border-bottom: 1px solid #ddd;
+		}
+
+		#locate>span {
+			-webkit-font-smoothing: antialiased;
+			font-style: normal;
+			font-variant: normal;
+			text-rendering: auto;
+			font-family: "Font Awesome 5 Free";
+			font-weight: 900;
+			font-size: 14px;
+		}
+
+		#locate>span::before {
+			content: "";
+		}
+
+		.shadow {
+			border-radius: 16px;
+			border: 1px solid #ddd;
+			box-shadow: 0 4px 10px #00000050;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+	<div class="shadow" id="searchbox">
+		<input type="text" placeholder="Search Routes and Stops" id="searchinput">
+	</div>
+	<div class="shadow" id="filterbox">
+		<input type="text" placeholder="Filter by Route" id="filterinput">
+	</div>
+	<script src="./index.js" type="module"></script>
+</body>
+
+</html>

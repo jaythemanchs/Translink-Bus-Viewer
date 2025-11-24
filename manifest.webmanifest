@@ -1,0 +1,26 @@
+{
+  "short_name": "Translink",
+  "name": "Translink Bus Viewer",
+  "icons": [
+    {
+      "src": "./images/favicon_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./images/favicon_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "./images/favicon_monochrome_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#EF60A3",
+  "background_color": "#242B4C"
+}
