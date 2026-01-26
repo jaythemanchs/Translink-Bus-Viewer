@@ -10,7 +10,6 @@ self.addEventListener("install", (event) => {
 				"./js/proto.js",
 				"./js/leaflet.js",
 				"./js/web_worker.js",
-				"./js/papaparse.min.js",
 				"./js/bootstrap.bundle.min.js",
 				"./css/leaflet.css",
 				"./css/bootstrap.min.css",
