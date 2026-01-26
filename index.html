@@ -1,97 +1,181 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+	<meta name="HandheldFriendly" content="true">
+	<meta name="mobile-web-app-capable" content="yes">
 	<title>Translink Bus Viewer</title>
-	<link rel="stylesheet" href="./leaflet.css" />
-	<link rel="manifest" href="./manifest.webmanifest" />
-	<link rel="shortcut icon" href="./images/favicon_192x192.png" type="image/x-icon">
-	<link rel="apple-touch-icon" href="./images/favicon_192x192.png" type="image/x-icon">
-	<script src="./leaflet.js"></script>
-	<script src="./papaparse.min.js"></script>
+	<link rel="stylesheet" href="/css/leaflet.css" />
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/css/bootstrap-icons.min.css">
+	<link rel="manifest" href="/manifest.webmanifest" />
+	<link rel="shortcut icon" href="/images/icon_color.svg" type="image/svg+xml">
+	<link rel="apple-touch-icon" sizes="48x48" href="/images/icon_48x48.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="72x72" href="/images/icon_72x72.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="96x96" href="/images/icon_96x96.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="128x128" href="/images/icon_128x128.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="192x192" href="/images/icon_192x192.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="384x384" href="/images/icon_384x384.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="512x512" href="/images/icon_512x512.png" type="image/x-icon">
+	<script src="/js/leaflet.js"></script>
+	<script src="/js/bootstrap.bundle.min.js"></script>
 	<style>
 		@font-face {
 			font-family: "Font Awesome 5 Free";
 			font-style: normal;
 			font-weight: 900;
 			font-display: block;
-			src: url(./awesome.woff2) format("woff2");
+			src: url(/fonts/awesome.woff2) format("woff2");
+		}
+
+		@media (max-height: 576px) {
+			#panes>div {
+				max-height: 100% !important
+			}
+		}
+
+		@media (min-width: 724px) and (min-height: 577px) {
+			.float-navbar {
+				margin: 1rem;
+				border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+				border-radius: var(--bs-border-radius-pill) !important;
+				position: absolute;
+			}
+
+			.foot-navbar {
+				bottom: 0;
+				width: 20rem;
+				min-width: 0;
+				left: 0;
+				z-index: 1 !important;
+				transition: border-top-left-radius 200ms cubic-bezier(1, 0, 1, 1);
+			}
+
+			body:has(#panes>div.show) .foot-navbar {
+				border-top-left-radius: 0 !important;
+				transition: border-top-left-radius 200ms cubic-bezier(0, 0, 0, 1);
+			}
+
+			.head-navbar {
+				top: 0;
+				width: 40rem;
+				right: 0;
+			}
+
+			#panes {
+				padding: 1rem !important;
+				padding-bottom: 0 !important;
+			}
+
+			#panes>div.show {
+				transform: translate(0px, calc((1.325rem + .9vw) * -1.5 - 3rem - 2px)) !important;
+				max-height: calc(100% - (1.325rem + .9vw) * 1.5 - var(--bs-border-width) * 4 - 7.25rem) !important;
+			}
+
+			#route_pane.mini {
+				border-radius: 50rem !important;
+			}
+
+			#route_pane,
+			#route_pane.mini {
+				border-bottom-left-radius: 0 !important;
+			}
+
+			#alerts {
+				padding: 1rem !important;
+				padding-bottom: calc((1.325rem + .9vw) * 1.5 + 3rem + 2px) !important;
+			}
+		}
+
+		* {
+			scrollbar-width: thin;
+			scrollbar-color: rgb(from currentcolor r g b / 0.5) transparent
+		}
+
+		/* Chrome, Edge, Safari, Opera */
+		*::-webkit-scrollbar {
+			width: 10px;
+			/* Scrollbar width */
+		}
+
+		*::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			/* Track color */
+		}
+
+		*::-webkit-scrollbar-thumb {
+			background: #888;
+			/* Thumb color */
+			border-radius: 5px;
+			/* Rounded corners */
+		}
+
+		*::-webkit-scrollbar-thumb:hover {
+			background: #df3535;
+			/* Hover color */
 		}
 
 		* {
 			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 		}
 
+		html,
+		body {
+			touch-action: none;
+			height: 100%;
+			width: 100vw;
+			overflow: hidden;
+		}
+
 		body {
 			padding: 0;
 			margin: 0;
+			display: flex;
+			flex-direction: column;
 		}
 
-		html,
-		body,
-		#map {
-			height: 100%;
-			width: 100vw;
+		nav>:nth-child(2)>.dropdown-menu {
+			width: calc(100vw - 2rem);
+			max-width: 300px;
 		}
 
-		#searchbox {
-			position: absolute;
-			top: 20px;
-			right: 20px;
-			min-width: min(calc(100% - 84px), 400px);
-			max-width: calc(100% - 84px);
-			height: 40px;
-			background: white;
-			z-index: 1000;
-			max-height: calc(100% - 80px);
+		#panes>div {
+			max-height: min(75%, 620px);
+			max-width: min(100%, 780px);
+			width: fit-content;
+			transform: translate(0, calc(150% + .5rem + var(--bs-border-width)));
+			transition: transform 200ms cubic-bezier(1, 0, 1, 1);
+		}
+
+		#panes>div.show {
+			display: initial;
+			pointer-events: initial;
+			transform: none;
+			transition: transform 200ms cubic-bezier(0, 0, 0, 1);
+		}
+
+		#alerts {
+			pointer-events: none;
+		}
+
+		#alerts>.alert {
+			margin-top: var(--bs-alert-margin-bottom);
+			margin-bottom: 0;
+		}
+
+		#alerts>.alert.show {
+			pointer-events: initial;
+		}
+
+		#main_search_results {
 			overflow-y: auto;
-			overflow-x: hidden;
+			max-height: calc(75vh - 3.25rem - 2px);
+			background-clip: border-box;
 		}
 
-		#filterbox {
-			position: absolute;
-			top: 80px;
-			right: 20px;
-			width: 200px;
-			height: 40px;
-			background: white;
-			z-index: 999;
-			max-height: calc(100% - 80px);
-			overflow-y: auto;
-			overflow-x: hidden;
-		}
-
-		#searchbox::-webkit-scrollbar,
-		#filterbox::-webkit-scrollbar {
-			display: none;
-		}
-
-		#searchbox>input,
-		#filterbox>input {
-			position: sticky;
-			top: 0;
-		}
-
-		#searchbox>input,
-		#searchbox>div,
-		#filterbox>input {
-			width: 100%;
-			height: 40px;
-			border: none;
-			padding: 0px 14px;
-			border-radius: 16px;
-			font-size: 18px;
-			text-align: right;
-		}
-
-		#searchbox>div {
-			border-radius: 0px;
-			font-size: 16px;
-			height: 26px;
-			width: 100%;
-			min-width: -webkit-fill-available;
-			border-top: 1px solid #ddd;
+		#main_search_results>li>a>p {
 			cursor: pointer;
 			box-sizing: border-box;
 			text-overflow: ellipsis;
@@ -99,23 +183,85 @@
 			white-space: nowrap;
 		}
 
-		#searchbox>div:first-child {
-			border-top: none;
+		#route_pane {
+			border-color: rgba(0, 0, 0, 0.25) !important;
+			--route-color: #E463A4;
+			--route-text-color: #000;
+			color: var(--route-text-color);
 		}
 
-		#searchbox>div:hover {
-			background-color: #f4f4f4;
+		#route_pane.mini>.pt-3 {
+			padding-bottom: 1rem !important;
 		}
 
-		#searchbox.open,
-		#filterbox.open {
-			height: fit-content;
+		#route_pane>.pt-3>h1 {
+			cursor: pointer;
 		}
 
-		#searchbox.open>input,
-		#filterbox.open>input {
-			border-radius: 16px 16px 0px 0px;
-			border-bottom: 1px solid #ddd;
+		#route_pane.mini>.pb-3 {
+			display: none;
+		}
+
+		#route_pane,
+		#route_pane>.pb-3>ul {
+			background-color: var(--route-color);
+			--bs-border-color: rgba(from var(--route-text-color) r g b / 0.25);
+		}
+
+		#route_pane .btn-close {
+			--bs-btn-close-color: var(--route-text-color);
+			background: var(--route-text-color);
+			mask: var(--bs-btn-close-bg) center/1em auto no-repeat;
+			filter: none;
+		}
+
+		#route_pane .text-secondary {
+			color: rgba(from var(--route-text-color) r g b / 0.75) !important;
+		}
+
+		#route_pane a:not(.nav-link) {
+			color: var(--route-text-color);
+		}
+
+		#route_pane a:not(.nav-link):hover {
+			color: rgba(from var(--route-text-color) r g b / 0.75)
+		}
+
+		#route_pane .nav-link {
+			--bs-nav-link-color: rgba(from var(--route-text-color) r g b / 0.75);
+			--bs-nav-link-disabled-color: rgba(from var(--route-text-color) r g b / 0.5);
+			--bs-nav-link-hover-color: rgba(from var(--route-text-color) r g b / 0.9);
+			--bs-nav-underline-link-active-color: var(--route-text-color);
+		}
+
+		#route_pane table {
+			--bs-table-border-color: rgba(from var(--route-text-color) r g b / 0.25);
+			--bs-table-striped-color: var(--route-text-color);
+			--bs-table-hover-color: var(--route-text-color);
+			--bs-table-color: var(--route-text-color);
+			--bs-table-bg: var(--route-color)
+		}
+
+		#timetable * {
+			vertical-align: middle;
+		}
+
+		#timetable>thead>tr>:first-child,
+		#timetable>tbody>tr>:first-child {
+			text-align: left;
+			min-width: 150px;
+		}
+
+		#timetable>thead>tr>th:first-child {
+			--bs-border-color: var(--route-color)
+		}
+
+		#timetable>thead>tr>th:not(:first-child) {
+			cursor: pointer;
+		}
+
+		#timetable>tbody>tr>:not(:first-child) {
+			white-space: nowrap;
 		}
 
 		#locate>span {
@@ -132,23 +278,208 @@
 			content: "";
 		}
 
-		.shadow {
-			border-radius: 16px;
-			border: 1px solid #ddd;
-			box-shadow: 0 4px 10px #00000050;
+		.has-search .form-control {
+			padding-left: 2.375rem;
+		}
+
+		.has-search .form-control-feedback {
+			position: absolute;
+			z-index: 2;
+			display: block;
+			width: 2.375rem;
+			height: 2.375rem;
+			line-height: 2.375rem;
+			text-align: center;
+			pointer-events: none;
+			color: var(--bs-body-color);
+		}
+
+		.has-star .form-control {
+			padding-right: 2.375rem;
+		}
+
+		.has-star .form-control-feedback {
+			position: absolute;
+			z-index: 2;
+			display: block;
+			width: 2.375rem;
+			height: 2.375rem;
+			line-height: 2.375rem;
+			text-align: center;
+			color: var(--bs-body-color);
+			right: calc(var(--bs-gutter-x) * 0.65);
+		}
+
+		.form-control-load {
+			opacity: 0;
+			position: absolute;
+			top: calc(50% - 0.5rem);
+			right: 0.5rem;
+			z-index: 2;
+			color: var(--bs-body-color);
+			line-height: 2.375rem;
+			text-align: center;
+			pointer-events: none;
+			transition: opacity 100ms ease-in-out;
+		}
+
+		.loading>.form-control-load {
+			opacity: 1;
+		}
+
+		.loading>.form-control {
+			padding-right: 2rem;
+		}
+
+		.bus-marker>:first-child {
+			position: absolute;
+			transform-origin: 14px 14px;
+			pointer-events: all;
+			cursor: pointer;
+		}
+
+		.bus-marker>:nth-child(2) {
+			position: absolute;
+			pointer-events: none;
+		}
+
+		.bus-marker>:nth-child(3) {
+			border: 1px solid #242b4c;
+			border-radius: 0.5rem;
+			background-color: var(--bs-secondary-bg);
+			transform: translate(calc(-50% + 14px), 40px);
+			white-space: nowrap;
+			display: flex;
+			flex-direction: row;
+			pointer-events: all;
+			cursor: pointer;
+		}
+
+		.bus-marker>:nth-child(3)>p {
+			margin: 0;
+			padding: 0rem 0.25rem;
+			font-weight: 600;
+			font-size: 1rem;
+		}
+
+		.bus-marker>:nth-child(3)>p:first-child {
+			border-bottom-left-radius: 0.5rem;
+			border-top-left-radius: 0.5rem;
+			background-color: #E463A4;
+			color: #242b4c;
+		}
+
+		.bus-marker.outbound>:nth-child(3)>p:first-child {
+			background-color: #7360EF;
+		}
+
+		.bus-marker>:nth-child(3):has(p:last-child[hidden])>p:first-child {
+			border-bottom-right-radius: 0.5rem;
+			border-top-right-radius: 0.5rem;
+		}
+
+		.bus-marker>:nth-child(3)>p:last-child {
+			border-bottom-right-radius: 0.5rem;
+			border-top-right-radius: 0.5rem;
+		}
+
+		[data-bs-theme=dark] .bus-marker>:nth-child(3)>p:last-child {
+			--bs-success-rgb: 117, 183, 152;
+			--bs-danger-rgb: 234, 134, 143;
 		}
 	</style>
 </head>
 
-<body>
-	<div id="map"></div>
-	<div class="shadow" id="searchbox">
-		<input type="text" placeholder="Search Routes and Stops" id="searchinput">
+<body class="bg-body-secondary">
+	<nav class="bg-body-secondary ps-2 pe-3 py-2 hstack z-1 float-navbar head-navbar">
+		<div class="dropdown form-group flex-fill has-search me-2 loading">
+			<span class="bi bi-search form-control-feedback" aria-hidden="true"></span>
+			<input type="text" autocomplete="off" id="main_search" class="form-control rounded-pill"
+				placeholder="Search" aria-label="Search Input">
+			<div class="spinner-border spinner-border-sm form-control-load" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			<ul class="dropdown-menu w-100" id="main_search_results"></ul>
+		</div>
+		<div class="dropdown">
+			<button class="btn btn-sm rounded-pill" type="button" title="Filter" aria-label="Filter Dropdown"
+				data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"><i
+					class="bi bi-funnel-fill"></i></button>
+			<div class="dropdown-menu">
+				<form class="px-3 py-2 d-flex flex-column">
+					<div class="row mb-3">
+						<label for="route_filter" class="col-sm-3 col-form-label">Routes</label>
+						<div class="col-sm-9 has-star">
+							<button id="add_favourite_route" class="form-control-feedback bg-transparent border-0"
+								type="button" title="Add Favourite"><span class="bi bi-star"
+									aria-hidden="true"></span></button>
+							<input list="route_filter_favourites" autocomplete="off" type="text" class="form-control"
+								id="route_filter">
+							<datalist id="route_filter_favourites"></datalist>
+						</div>
+					</div>
+					<button id="filter_map" type="submit" class="btn btn-primary">Apply Filters</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+	<div class="flex-grow-1 z-0 position-relative">
+		<div id="map" class="h-100 w-100 z-0"></div>
+		<div id="panes"
+			class="h-100 w-100 position-absolute top-0 z-1 p-2 pe-none d-flex flex-column justify-content-end">
+			<div id="route_pane" class="border rounded overflow-auto shadow-sm px-3">
+				<div class="pt-3 hstack">
+					<h1 class="d-flex m-0 align-items-center me-3 flex-grow-1">
+						<p class="m-0 me-2" id="route_code"></p>
+						<div class="vr"></div>
+						<p class="m-0 ms-2 fs-5" id="route_name"></p>
+					</h1>
+					<button type="button" class="btn-close fs-5" aria-label="Close"></button>
+				</div>
+				<div class="pb-3">
+					<ul class="nav nav-fill nav-underline position-sticky top-0 pt-2 border-bottom z-2" role="tablist">
+						<li class="nav-item" role="presentation">
+							<a class="nav-link active" aria-current="page" href="#" role="tab"
+								id="inbound_tab">Inbound</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link" aria-current="page" href="#" role="tab" id="outbound_tab">Outbound</a>
+						</li>
+					</ul>
+					<div class="tab-pane fade show active" role="tabpanel" tabindex="0">
+						<div class="table-responsive my-1">
+							<table id="timetable"
+								class="table table-bordered table-striped-columns table-hover text-center mb-0">
+								<thead></thead>
+								<tbody></tbody>
+							</table>
+						</div>
+						<p class="small text-secondary m-0">Data provided by <a href="https://www.translink.com.au/"
+								target="_blank" rel="noopener">Department of Transport and Main Roads -
+								Translink
+								Division</a></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="alerts"
+			class="h-100 w-100 position-absolute top-0 z-2 p-2 overflow-auto d-flex flex-column-reverse pe-none">
+		</div>
 	</div>
-	<div class="shadow" id="filterbox">
-		<input type="text" placeholder="Filter by Route" id="filterinput">
-	</div>
-	<script src="./index.js" type="module"></script>
+
+	<ul class="nav bg-body-secondary nav-fill z-1 float-navbar foot-navbar">
+		<li class="nav-item">
+			<a class="nav-link active link-body-emphasis" aria-current="page" title="Home"><i
+					class="bi bi-house-door-fill fs-2"></i></a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link link-secondary" title="Routes"><i class="bi bi-map-fill fs-2"></i></a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link link-secondary" title="Settings"><i class="bi bi-gear-fill fs-2"></i></a>
+		</li>
+	</ul>
+	<script src="/js/index.js" type="module"></script>
 </body>
 
 </html>

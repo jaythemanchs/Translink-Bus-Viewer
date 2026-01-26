@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   role="img"
+   aria-label="Translink logo"
+   version="1.1"
+   viewBox="0 0 42.612001 42.603"
+   focusable="false"
+   class="my-2 text-white mx-0 block h-[25px] transition-all sm:h-[44px]"
+   id="svg11"
+   sodipodi:docname="icon_color.svg"
+   width="42.612"
+   height="42.603001"
+   inkscape:export-filename="C:\Users\jacob\Documents\gtfs\images\favicon_512x512_maskable.png"
+   inkscape:export-xdpi="1153.48"
+   inkscape:export-ydpi="1153.48"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview13"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     showgrid="false"
+     inkscape:zoom="19.099782"
+     inkscape:cx="17.618002"
+     inkscape:cy="20.262011"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g9">
+    <inkscape:grid
+       type="xygrid"
+       id="grid915" />
+  </sodipodi:namedview>
+  <defs
+     id="defs3">
+    <path
+       id="a"
+       d="M 42.598,20.557 A 21.18,21.18 0 0 1 39.683,32.08 C 35.79,38.718 28.786,42.626 21.16,42.603 16.792,42.589 13.277,39.006 13.307,34.639 a 7.906,7.906 0 0 1 7.418,-7.834 c 0.38,-0.033 1.534,-0.105 3.087,0.07 3.381,0.38 8.547,1.15 10.995,0.473 5.355,-1.48 7.053,-4.445 7.497,-6.816 0.031,-0.173 0.29,-0.152 0.295,0.025 z M 13.762,7.702 a 7.907,7.907 0 0 1 3.076,10.341 c -0.16,0.345 -0.677,1.381 -1.605,2.639 -2.02,2.737 -5.269,6.826 -5.907,9.284 -1.397,5.379 0.323,8.33 2.154,9.9 0.135,0.115 -0.013,0.327 -0.169,0.243 A 21.189,21.189 0 0 1 2.789,31.823 C -1.011,25.133 -0.896,17.113 2.939,10.52 5.135,6.744 9.995,5.492 13.762,7.702 Z M 21.459,0 c 7.694,0.055 14.58,4.163 18.374,10.781 2.172,3.79 0.827,8.626 -2.97,10.782 A 7.906,7.906 0 0 1 26.369,19.057 C 26.151,18.745 25.511,17.78 24.885,16.348 23.525,13.231 21.609,8.371 19.799,6.589 15.839,2.692 12.423,2.704 10.148,3.506 9.982,3.565 9.87,3.33 10.02,3.236 A 21.19,21.19 0 0 1 21.46,0.002 Z" />
+  </defs>
+  <g
+     transform="translate(-0.15301,-0.314)"
+     fill="none"
+     fill-rule="evenodd"
+     id="g9">
+    <path
+       d="m 42.750997,20.871 a 21.18,21.18 0 0 1 -2.915,11.523 c -3.893,6.638 -10.897,10.546 -18.523,10.523 -4.368,-0.014 -7.883,-3.597 -7.853,-7.964 a 7.906,7.906 0 0 1 7.418,-7.834 c 0.38,-0.033 1.534,-0.105 3.087,0.07 3.381,0.38 8.547,1.15 10.995,0.473 5.355,-1.48 7.053,-4.445 7.497,-6.816 0.031,-0.173 0.29,-0.152 0.295,0.025 z m -28.836,-12.855 a 7.907,7.907 0 0 1 3.076,10.341 c -0.16,0.345 -0.677,1.381 -1.605,2.639 -2.02,2.737 -5.269,6.826 -5.9069998,9.284 -1.397,5.379 0.323,8.33 2.1539998,9.9 0.135,0.115 -0.013,0.327 -0.169,0.243 A 21.189,21.189 0 0 1 2.9419972,32.137 c -3.80000004,-6.69 -3.68500004,-14.71 0.15,-21.303 2.196,-3.776 7.0559998,-5.028 10.8229998,-2.818 z m 7.697,-7.702 c 7.694,0.055 14.58,4.163 18.374,10.781 2.172,3.79 0.827,8.626 -2.97,10.782 a 7.906,7.906 0 0 1 -10.494,-2.506 c -0.218,-0.312 -0.858,-1.277 -1.484,-2.709 -1.36,-3.117 -3.276,-7.977 -5.086,-9.759 -3.96,-3.897 -7.376,-3.885 -9.651,-3.083 -0.166,0.059 -0.278,-0.176 -0.128,-0.27 a 21.19,21.19 0 0 1 11.44,-3.234 z"
+       fill="#ef5db0"
+       fill-rule="nonzero"
+       id="path7"
+       inkscape:export-filename="C:\Users\jacob\Documents\gtfs\images\favicon_monochrome_512x512.png"
+       inkscape:export-xdpi="1153.48"
+       inkscape:export-ydpi="1153.48" />
+  </g>
+</svg>
