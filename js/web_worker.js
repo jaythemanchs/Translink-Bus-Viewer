@@ -1,11 +1,13 @@
 const pkHeader = 0x04034b50
 const rad = Math.PI / 180
 
+importScripts("proto.js")
 const gtfs = {}
+const proxy = "https://api.codetabs.com/v1/proxy/?quest=" //.substring(0, 0)
+const preloadedFeeds = [getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/TripUpdates/Bus"), getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/VehiclePositions/Bus")/*, getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/alerts")*/]
 const requiredFiles = ["agency.txt", "calendar.txt", "calendar_dates.txt", "feed_info.txt", "routes.txt", "shapes.txt", "stops.txt", "stop_times.txt", "trips.txt"]
 const daysLower = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 const daysTitle = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-const proxy = "https://api.codetabs.com/v1/proxy/?quest=" //.substring(0, 0)
 const encoder = new TextEncoder()
 const btoc = String.fromCharCode
 
@@ -508,9 +510,10 @@ function ready(error) {
 		postMessage({ command: "ready", error, tick: true })
 	else {
 		postMessage({ command: "ready", tick: true })
-		Promise.all([getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/TripUpdates/Bus"), getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/VehiclePositions/Bus"), getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/Alerts/Bus")]).then((feeds) => {
+		Promise.all(preloadedFeeds).then((feeds) => {
 			lastTripUpdates = feeds[0].entities
 			lastVehiclePositions = feeds[1].entities
+			// lastAlerts = feeds[2].entities
 			postVehiclePositions()
 		}).catch((error) => {
 			postMessage({ command: "ready", error, tick: true })
@@ -527,7 +530,6 @@ function ready(error) {
 }
 
 console.log("Worker Initializing...")
-importScripts("proto.js")
 
 navigator.storage.getDirectory().then(async (dir) => {
 	console.time("Test")

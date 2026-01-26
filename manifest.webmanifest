@@ -81,6 +81,7 @@
 			"type": "image/svg+xml"
 		}
 	],
+	"id": "/Translink-Bus-Viewer/",
 	"start_url": ".",
 	"display": "standalone",
 	"theme_color": "#EF60A3",

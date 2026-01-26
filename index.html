@@ -67,10 +67,13 @@
 
 			#panes {
 				padding: 1rem !important;
+			}
+
+			body:not(:has(ul.foot-navbar.d-none)) #panes {
 				padding-bottom: 0 !important;
 			}
 
-			#panes>div.show {
+			body:not(:has(ul.foot-navbar.d-none)) #panes>div.show {
 				transform: translate(0px, calc((1.325rem + .9vw) * -1.5 - 3rem - 2px)) !important;
 				max-height: calc(100% - (1.325rem + .9vw) * 1.5 - var(--bs-border-width) * 4 - 7.25rem) !important;
 			}
@@ -79,8 +82,8 @@
 				border-radius: 50rem !important;
 			}
 
-			#route_pane,
-			#route_pane.mini {
+			body:not(:has(ul.foot-navbar.d-none)) #route_pane,
+			body:not(:has(ul.foot-navbar.d-none)) #route_pane.mini {
 				border-bottom-left-radius: 0 !important;
 			}
 
