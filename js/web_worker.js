@@ -448,12 +448,13 @@ function filterArrayIncludes(array, includes) {
 
 function postVehiclePositions(tick) {
 	if (lastVehiclePositions && lastMapBounds) {
-		const routes = lastFilters?.routes?.length && lastFilters.routes.map((value) => gtfs.routes.listFind("route_short_name", value)?.route_id)
+		const routes = lastFilters?.routes?.length && []
 		const vehicleFind = (id, entity) => entity.tripUpdate.vehicle?.id == id
 		const stopTimeUpdateFind = (id, stopTimeUpdate) => stopTimeUpdate.stopSequence <= id
 		const vehicles = []
 		let delay
 		if (routes) {
+			lastFilters.routes.forEach((value) => gtfs.routes.listFilter("route_short_name", value).forEach((route) => routes.push(route.route_id)))
 			lastVehiclePositions.forEach(({ vehicle }) => {
 				if (vehicle?.position && inBounds(lastMapBounds, vehicle.position.latitude, vehicle.position.longitude) && routes.includes(vehicle.tripDescriptor.routeId)) {
 					delay = (vehicle.tripUpdate || (vehicle.tripUpdate = lastTripUpdates.find(vehicleFind.bind(null, vehicle.vehicle.id))))?.tripUpdate?.stopTimeUpdates?.findLast(stopTimeUpdateFind.bind(null, vehicle.currentStopSequence))
@@ -506,8 +507,8 @@ function ready(error) {
 	if (error)
 		postMessage({ command: "ready", error, tick: true })
 	else {
+		postMessage({ command: "ready", tick: true })
 		Promise.all([getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/TripUpdates/Bus"), getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/VehiclePositions/Bus"), getFeed(proxy + "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/Alerts/Bus")]).then((feeds) => {
-			postMessage({ command: "ready", tick: true })
 			lastTripUpdates = feeds[0].entities
 			lastVehiclePositions = feeds[1].entities
 			postVehiclePositions()
