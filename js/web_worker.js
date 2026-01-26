@@ -545,7 +545,7 @@ navigator.storage.getDirectory().then(async (dir) => {
 	}
 
 	if (requiredFiles.length) {
-		getFiles("/SEQ_GTFS.zip", parseFile).then(() => {
+		getFiles("./SEQ_GTFS.zip", parseFile).then(() => {
 			console.timeEnd("Test")
 			ready()
 		}).catch((error) => {

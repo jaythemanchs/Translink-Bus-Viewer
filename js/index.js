@@ -14,14 +14,14 @@ if (typeof navigator.storage == "undefined") {
 if (!localStorage.getItem("favourite_stops")) localStorage.setItem("favourite_stops", "[]")
 if (!localStorage.getItem("favourite_routes")) localStorage.setItem("favourite_routes", "[]")
 if (!localStorage.getItem("favourite_route_filters")) localStorage.setItem("favourite_route_filters", "[]")
-// if (navigator.serviceWorker) {
-// 	navigator.serviceWorker.register("./service_worker.js")
-// 	navigator.serviceWorker.onmessage = (message) => {
-// 		if (message.data == "cached") {
-// 			createAlert("success", "This program can now run offline", true)
-// 		}
-// 	}
-// }
+if (navigator.serviceWorker) {
+	navigator.serviceWorker.register("./service_worker.js")
+	navigator.serviceWorker.onmessage = (message) => {
+		if (message.data == "cached") {
+			createAlert("success", "This program can now run offline", true)
+		}
+	}
+}
 
 const worker = new Worker("./js/web_worker.js")
 const rad = Math.PI / 180
