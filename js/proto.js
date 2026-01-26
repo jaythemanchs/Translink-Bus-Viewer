@@ -333,12 +333,15 @@ class TimeRange extends Message {
 
 class Position extends Message {
 	parse(index, _, def) {
+		var buf
 		switch (index) {
 			case 1:
-				this.latitude = new Float32Array(def().buffer)[0]
+				buf = def()
+				this.latitude = new DataView(buf.buffer, buf.byteOffset, buf.byteLength).getFloat32(0, true)
 				break
 			case 2:
-				this.longitude = new Float32Array(def().buffer)[0]
+				buf = def()
+				this.longitude = new DataView(buf.buffer, buf.byteOffset, buf.byteLength).getFloat32(0, true)
 				break
 			case 3:
 				this.bearing = Number(def())

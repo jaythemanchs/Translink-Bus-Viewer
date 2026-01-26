@@ -4,19 +4,26 @@ if (typeof Worker == "undefined") {
 	document.getElementById("main_search").parentElement.classList.remove("loading")
 	throw new Error("WebWorkers not supported!")
 }
+
+if (typeof navigator.storage == "undefined") {
+	createAlert("danger", "This browser does not support WebStorage")
+	document.getElementById("main_search").parentElement.classList.remove("loading")
+	throw new Error("WebStorage not supported!")
+}
+
 if (!localStorage.getItem("favourite_stops")) localStorage.setItem("favourite_stops", "[]")
 if (!localStorage.getItem("favourite_routes")) localStorage.setItem("favourite_routes", "[]")
 if (!localStorage.getItem("favourite_route_filters")) localStorage.setItem("favourite_route_filters", "[]")
-if (navigator.serviceWorker) {
-	navigator.serviceWorker.register("/service_worker.js")
-	navigator.serviceWorker.onmessage = (message) => {
-		if (message.data == "cached") {
-			createAlert("success", "This program can now run offline", true)
-		}
-	}
-}
+// if (navigator.serviceWorker) {
+// 	navigator.serviceWorker.register("./service_worker.js")
+// 	navigator.serviceWorker.onmessage = (message) => {
+// 		if (message.data == "cached") {
+// 			createAlert("success", "This program can now run offline", true)
+// 		}
+// 	}
+// }
 
-const worker = new Worker("/js/web_worker.js")
+const worker = new Worker("./js/web_worker.js")
 const rad = Math.PI / 180
 
 const routeTypes = {
@@ -610,7 +617,7 @@ worker.onmessage = (data) => {
 				request.favouriteRoutes.forEach((route) => searchResult("<i class=\"small me-2 bi " + (routeTypes[route.route_type] || "bi-question-lg") + "\"></i><p class=\"small m-0 flex-grow-1\">" + (route.route_short_name.length ? route.route_short_name + (route.route_long_name.length ? " - " + route.route_long_name : "") : route.route_long_name) + "</p>", "favourite_routes", route.route_id).addEventListener("click", () => {
 					mainResultsDropdown.hide()
 					const date = new Date(Date.now() - 30 * 60 * 1000)
-					worker.postMessage({ command: "route_timetable", id: route.route_id, date, start: date.toTimeString().split(" ", 1) }, true)
+					worker.postMessage({ command: "route_timetable", id: route.route_id, date, start: date.toTimeString().split(" ", 1)[0] }, true)
 				}))
 			}
 
@@ -628,7 +635,7 @@ worker.onmessage = (data) => {
 				request.routes.forEach((route) => searchResult("<i class=\"small me-2 bi " + (routeTypes[route.route_type] || "bi-question-lg") + "\"></i><p class=\"small m-0 flex-grow-1\">" + (route.route_short_name.length ? route.route_short_name + (route.route_long_name.length ? " - " + route.route_long_name : "") : route.route_long_name) + "</p>", "favourite_routes", route.route_id).addEventListener("click", () => {
 					mainResultsDropdown.hide()
 					const date = new Date(Date.now() - 30 * 60 * 1000)
-					worker.postMessage({ command: "route_timetable", id: route.route_id, date, start: date.toTimeString().split(" ", 1) }, true)
+					worker.postMessage({ command: "route_timetable", id: route.route_id, date, start: date.toTimeString().split(" ", 1)[0] }, true)
 				}))
 			}
 
@@ -665,7 +672,7 @@ worker.onmessage = (data) => {
 
 					if (tempBusShape) tempBusShape = tempBusShape.remove()
 					if (shapes) {
-						tempBusShape = L.polyline(shapes.map((shape) => [shape.shape_pt_lat, shape.shape_pt_lon]), { color: "#" + request.route.route_color, weight: 5, interactive: false }).addTo(map)
+						tempBusShape = L.polyline(shapes, { color: "#" + request.route.route_color, weight: 5, interactive: false }).addTo(map)
 					}
 
 					Object.values(vehiclePositionMarkers).forEach((marker) => marker.setOpacity(marker.routeId == currentRouteId && marker.direction == currentRouteDirection ? 1 : 0))
@@ -716,7 +723,7 @@ worker.onmessage = (data) => {
 						times.forEach((trips, i) => {
 							row = body.insertRow()
 							row.innerHTML = "<td>" + stops[i][1] + "</td>"
-							trips.forEach((time) => row.innerHTML += "<td>" + timetable12Hr(time[0]) + (time[2] ? "<sup class=\"\"><img src=\"/images/realtime.svg\" width=\"12\" height=\"12\">" : "") + "</td>")
+							trips.forEach((time) => row.innerHTML += "<td>" + timetable12Hr(time[0]) + (time[2] ? "<sup class=\"\"><img src=\"./images/realtime.svg\" width=\"12\" height=\"12\">" : "") + "</td>")
 						})
 					}
 				}
@@ -875,19 +882,24 @@ if (mediaTheme) {
 }
 
 if (typeof NDEFReader != "undefined") {
+	document.querySelector("ul.foot-navbar").classList.remove("d-none")
+
 	let ndefReader = new NDEFReader()
-	ndefReader?.scan().then(() => {
-		ndefReader.onreadingerror = () => createAlert("warning", "Failed to read NFC Tag, please try again.", true)
-		ndefReader.onreading = (event) => {
-			const record = event.message.records[0]
-			alert(event.message.serialNumber)
-			if (record?.recordType == "url") {
-				fetch("https://trans-info.au/location/translink/?tagid=" + (new TextDecoder(record.encoding || "utf-8")).decode(record.data))
-					.then(async (response) => response.ok ? worker.postMessage({ command: "stop_timetable", id: (await response.text()).match("https://translink.com.au/stop/(.+)/gtfs/")[1] }) : createAlert("warning", "Failed to fetch NFC Tag data, please try again.", true))
-					.catch(() => createAlert("warning", "Failed to fetch NFC Tag data, please try again.", true))
+	document.getElementById("scan_nfc").addEventListener("click", () => {
+		ndefReader?.scan().then(() => {
+			createAlert("info", "Hold your device to the NFC tag.", true)
+			ndefReader.onreadingerror = () => createAlert("warning", "Failed to read NFC Tag, please try again.", true)
+			ndefReader.onreading = (event) => {
+				const record = event.message.records[0]
+				alert(event.message.serialNumber)
+				if (record?.recordType == "url") {
+					fetch("https://trans-info.au/location/translink/?tagid=" + (new TextDecoder(record.encoding || "utf-8")).decode(record.data))
+						.then(async (response) => response.ok ? worker.postMessage({ command: "stop_timetable", id: (await response.text()).match("https://translink.com.au/stop/(.+)/gtfs/")[1] }) : createAlert("warning", "Failed to fetch NFC Tag data, please try again.", true))
+						.catch(() => createAlert("warning", "Failed to fetch NFC Tag data, please try again.", true))
+				} else createAlert("danger", "Not a valid NFC Tag.", true)
 			}
-		}
-	}).catch((err) => err.name == "NotAllowedErrore" && createAlert("warning", "NFC Scanning Permission was denied.", true))
+		}).catch((err) => err.name == "NotAllowedError" && createAlert("error", "NFC Scanning Permission was denied.", true))
+	})
 }
 
 let initialPosition = url.searchParams.get("pos")

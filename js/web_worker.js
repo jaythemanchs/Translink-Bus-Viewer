@@ -5,7 +5,7 @@ const gtfs = {}
 const requiredFiles = ["agency.txt", "calendar.txt", "calendar_dates.txt", "feed_info.txt", "routes.txt", "shapes.txt", "stops.txt", "stop_times.txt", "trips.txt"]
 const daysLower = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 const daysTitle = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-const proxy = "https://api.codetabs.com/v1/proxy/?quest=".substring(0, 0)
+const proxy = "https://api.codetabs.com/v1/proxy/?quest=" //.substring(0, 0)
 const encoder = new TextEncoder()
 const btoc = String.fromCharCode
 
@@ -289,13 +289,78 @@ async function parseFile(name, reader, handle, size) {
 	// else if (byte != 0x0A) { item[pIndex + 1] = btoc(...group); body.push(item) }
 	console.timeEnd(`Parsed CSV ${name}`)
 
-	var final, proxy = {
+	var final
+	const listFind = function (property, value, start = 0) {
+		const kIndex = header.indexOf(property)
+		if (kIndex == -1) return
+		let i, j, l, index
+		var size = this.length
+		value = encoder.encode(value)
+		k = value.length
+		for (let bi = start; bi != size; bi++) {
+			index = this[bi];
+			j = -1
+			i = a[index + kIndex]
+			l = a[index + kIndex + 1] - 1
+			if (l - i != k) continue
+			for (; i != l; ++i) if (proxyBuffer[i] != value[++j]) { l = null; break }
+			if (i == l) return header.reduce((object, property) => (object[property] = stripQuotes(proxyBuffer, a[index], a[++index] - 1), object), {})
+		}
+	}
+
+	const listIndexOf = function (property, value, start = 0) {
+		const kIndex = header.indexOf(property)
+		if (kIndex == -1) return
+		let i, j, l, index
+		var size = this.length
+		value = encoder.encode(value)
+		k = value.length
+		for (let bi = start; bi != size; ++bi) {
+			index = this[bi];
+			i = a[index += kIndex]
+			l = a[index + 1] - 1
+			if (l - i != k) continue
+			j = -1
+			for (; i != l; ++i) if (proxyBuffer[i] != value[++j]) { l = null; break }
+			if (i == l) return bi
+		}
+	}
+
+	const listFilter = function (property, value, start = 0, stop) {
+		const kIndex = header.indexOf(property)
+		const result = []
+		if (kIndex == -1) return
+		let i, j, l, index
+		var size = this.length
+		value = encoder.encode(value)
+		k = value.length
+		for (let bi = start; bi != size; bi++) {
+			index = this[bi];
+			j = -1
+			i = a[index + kIndex]
+			l = a[index + kIndex + 1] - 1
+			if (l - i != k) if (stop && result.length) break; else continue
+			for (; i != l; ++i) if (proxyBuffer[i] != value[++j]) { l = null; break }
+			if (i == l) result.push(index); else if (stop && result.length) break
+		}
+		return new Proxy(result, proxy)
+	}
+
+	const listGet = function (index1, index2) {
+		return stripQuotes(proxyBuffer, a[index2 += this[index1]], a[index2 + 1] - 1)
+	}
+
+	const proxy = {
 		get(list, property) {
 			if (typeof (property) == "string") {
+				if (property == "listFind") return listFind.bind(list)
+				if (property == "listIndexOf") return listIndexOf.bind(list)
+				if (property == "listFilter") return listFilter.bind(list)
+				if (property == "listGet") return listGet.bind(list)
 				var index = parseInt(property)
-				if (index == index) return (index = Reflect.get(list, index), header.reduce((object, property) => (object[property] = stripQuotes(proxyBuffer, a[index], a[++index] - 1), object), {}))
+				if (index == index) return (index = list[index], header.reduce((object, property) => (object[property] = stripQuotes(proxyBuffer, a[index], a[++index] - 1), object), {}))
 			}
-			return Reflect.get(list, property)
+			return list[property]
 		}
 	}
 
@@ -305,18 +370,21 @@ async function parseFile(name, reader, handle, size) {
 			kIndex = header.indexOf("shape_id")
 			body.pop()
 			final = new Proxy({}, {
-				get(_, shape) {
+				get(_, value) {
+					if (value == "listGet") return listGet.bind(list)
 					const result = []
+					if (kIndex == -1) return
 					let i, j, l, index
-					shape = encoder.encode(shape)
-					k = shape.length
-					for (let bi = 0; bi < body.length; bi++) {
+					var size = body.length
+					value = encoder.encode(value)
+					k = value.length
+					for (let bi = 0; bi != size; bi++) {
 						index = body[bi];
 						j = -1
-						i = a[index + kIndex] - 1
-						l = a[index + kIndex + 1] - 2
-						if (l - i != k) return
-						while (i < l) if (proxyBuffer[++i] != trip[++j]) return
+						i = a[index + kIndex]
+						l = a[index + kIndex + 1] - 1
+						if (l - i != k) continue
+						for (; i != l; ++i) if (proxyBuffer[i] != value[++j]) { l = null; break }
 						if (i == l) result.push(index)
 					}
 					return new Proxy(result, proxy)
@@ -347,29 +415,6 @@ async function parseFile(name, reader, handle, size) {
 		// 	}
 
 		// 	break
-		case "stop_times":
-			kIndex = header.indexOf("trip_id")
-			body.pop()
-			final = new Proxy({}, {
-				get(_, trip) {
-					const result = []
-					let i, j, k, l, index
-					trip = encoder.encode(trip)
-					k = trip.length
-					for (let bi = 0; bi < body.length; bi++) {
-						index = body[bi];
-						j = -1
-						i = a[index + kIndex] - 1
-						l = a[index + kIndex + 1] - 2
-						if (l - i != k) return
-						while (i < l) if (proxyBuffer[++i] != trip[++j]) return
-						if (i == l) result.push(index)
-					}
-					return new Proxy(result, proxy)
-				}
-			})
-
-			break
 		default:
 			final = new Proxy(body, proxy)
 	}
@@ -378,12 +423,12 @@ async function parseFile(name, reader, handle, size) {
 }
 
 function isServiceActive(id, date) {
-	const service = gtfs.calendar.find((service) => service.service_id == id)
+	const service = gtfs.calendar.listFind("service_id", id)
 	if (!service) return
 	const day = daysLower[date.getDay()]
 	date = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`
-	if (service[day] == "1" && service.start_date <= date && service.end_date >= date) return !(gtfs.calendar_dates.find((service) => service.service_id == id && service.date == date)?.exception_type == "2")
-	else return gtfs.calendar_dates.find((service) => service.service_id == id && service.date == date)?.exception_type == "1"
+	if (service[day] == "1" && service.start_date <= date && service.end_date >= date) return !(gtfs.calendar_dates.listFilter("service_id", id).listFind("date", date)?.exception_type == "2")
+	else return gtfs.calendar_dates.listFilter("service_id", id).listFind("date", date)?.exception_type == "1"
 }
 
 function availability12Hr(t) {
@@ -403,9 +448,7 @@ function filterArrayIncludes(array, includes) {
 
 function postVehiclePositions(tick) {
 	if (lastVehiclePositions && lastMapBounds) {
-		const routes = lastFilters?.routes?.length && lastFilters.routes.map((value) => gtfs.routes.find((route) => route.route_short_name == value)?.route_id)
-		const tripFind = (id, trip) => trip.trip_id == id
-		const routeFind = (id, route) => route.route_id == id
+		const routes = lastFilters?.routes?.length && lastFilters.routes.map((value) => gtfs.routes.listFind("route_short_name", value)?.route_id)
 		const vehicleFind = (id, entity) => entity.tripUpdate.vehicle?.id == id
 		const stopTimeUpdateFind = (id, stopTimeUpdate) => stopTimeUpdate.stopSequence <= id
 		const vehicles = []
@@ -424,8 +467,8 @@ function postVehiclePositions(tick) {
 					}
 					vehicles.push({
 						routeId: vehicle.tripDescriptor.routeId,
-						direction: (vehicle.trip || (vehicle.trip = gtfs.trips.find(tripFind.bind(null, vehicle.tripDescriptor.tripId))))?.direction_id || 0,
-						route: (vehicle.route || (vehicle.route = gtfs.routes.find(routeFind.bind(null, vehicle.tripDescriptor.routeId))))?.route_short_name || vehicle.tripDescriptor.routeId,
+						direction: (vehicle.trip || (vehicle.trip = gtfs.trips.listFind("trip_id", vehicle.tripDescriptor.tripId)))?.direction_id || 0,
+						route: (vehicle.route || (vehicle.route = gtfs.routes.listFind("route_id", vehicle.tripDescriptor.routeId)))?.route_short_name || vehicle.tripDescriptor.routeId,
 						position: [vehicle.position.latitude, vehicle.position.longitude],
 						delay: delay != undefined && (delay = Math.round(delay / 60)) >= 0 ? `+${delay}` : delay,
 						id: vehicle.vehicle.id
@@ -446,8 +489,8 @@ function postVehiclePositions(tick) {
 					}
 					vehicles.push({
 						routeId: vehicle.tripDescriptor.routeId,
-						direction: (vehicle.trip || (vehicle.trip = gtfs.trips.find(tripFind.bind(null, vehicle.tripDescriptor.tripId))))?.direction_id || 0,
-						route: (vehicle.route || (vehicle.route = gtfs.routes.find(routeFind.bind(null, vehicle.tripDescriptor.routeId))))?.route_short_name || vehicle.tripDescriptor.routeId,
+						direction: (vehicle.trip || (vehicle.trip = gtfs.trips.listFind("trip_id", vehicle.tripDescriptor.tripId)))?.direction_id || 0,
+						route: (vehicle.route || (vehicle.route = gtfs.routes.listFind("route_id", vehicle.tripDescriptor.routeId)))?.route_short_name || vehicle.tripDescriptor.routeId,
 						position: [vehicle.position.latitude, vehicle.position.longitude],
 						delay: delay != undefined && (delay = Math.round(delay / 60)) >= 0 ? `+${delay}` : delay,
 						id: vehicle.vehicle.id
@@ -554,15 +597,15 @@ self.onmessage = (data) => {
 			self.postMessage({
 				command: "main_search",
 				stops, routes: routes_short.concat(routes_long),
-				favouriteRoutes: request.favouriteRoutes?.map((id) => gtfs.routes.find((route) => route.route_id == id))?.filter((route) => route.route_short_name.toLowerCase().includes(query) || route.route_long_name.toLowerCase().includes(query)) || [],
-				favouriteStops: location ? request.favouriteStops?.map((id) => gtfs.stops.find((stop) => stop.stop_id == id))?.filter((stop) => replaceContractions(stop.stop_name.toLowerCase()).includes(query) && (stop.distance = distance(stop.stop_lat, stop.stop_lon, location.lat, location.lng) * 12742, 1))?.sort((a, b) => a.distance - b.distance) || []
-					: request.favouriteStops?.map((id) => gtfs.stops.find((stop) => stop.stop_id == id))?.filter((stop) => replaceContractions(stop.stop_name.toLowerCase()).includes(query)) || [],
+				favouriteRoutes: request.favouriteRoutes?.map((id) => gtfs.routes.listFind("route_id", id))?.filter((route) => route.route_short_name.toLowerCase().includes(query) || route.route_long_name.toLowerCase().includes(query)) || [],
+				favouriteStops: location ? request.favouriteStops?.map((id) => gtfs.stops.listFind("stop_id", id))?.filter((stop) => replaceContractions(stop.stop_name.toLowerCase()).includes(query) && (stop.distance = distance(stop.stop_lat, stop.stop_lon, location.lat, location.lng) * 12742, 1))?.sort((a, b) => a.distance - b.distance) || []
+					: request.favouriteStops?.map((id) => gtfs.stops.listFind("stop_id", id))?.filter((stop) => replaceContractions(stop.stop_name.toLowerCase()).includes(query)) || [],
 				tick: request.tick
 			})
 			break
 		}
 		case "route_info": {
-			const route = gtfs.routes.find((route) => route.route_id == request.id)
+			const route = gtfs.routes.listFind("route_id", request.id)
 			if (!route) return self.postMessage({ command: "route_info", tick: request.tick })
 
 			self.postMessage({ command: "route_info", route, tick: request.tick })
@@ -574,7 +617,7 @@ self.onmessage = (data) => {
 
 			const directions = []
 			const routeID = request.id
-			const route = gtfs.routes.find((route) => route.route_id == routeID)
+			const route = gtfs.routes.listFind("route_id", routeID)
 			if (!route) return self.postMessage({ command: "route_timetable", directions: [], tick: request.tick })
 
 			const start = request.start || "00:00:00"
@@ -582,25 +625,31 @@ self.onmessage = (data) => {
 			const limit = request.limit || 4
 			var date = request.date || new Date()
 
-			let stops
-			for (let trip of gtfs.trips) {
-				if (trip.route_id == routeID) {
-					stops = gtfs.stop_times[trip.trip_id]
-					if (stops?.length) {
-						if (stops[0].arrival_time >= start && stops[0].departure_time <= end && isServiceActive(trip.service_id, date)) {
-							if (directions[trip.direction_id]) directions[trip.direction_id].push(stops)
-							else directions[trip.direction_id] = [stops]
-							directions[trip.direction_id].shape = trip.shape_id
-						} else if (!directions[trip.direction_id]) directions[trip.direction_id] = []
+			let stop, dir, i, j
+			console.time("route")
+			for (let trip of gtfs.trips.listFilter("route_id", routeID)) {
+				dir = trip.direction_id
+				if (!directions[dir]) {
+					directions[dir] = []
+					directions[dir].shape = trip.shape_id
+				}
 
-						if (!directions[trip.direction_id].shape) directions[trip.direction_id].shape = trip.shape_id
-						if (!directions[trip.direction_id].stops || directions[trip.direction_id].stops.length < stops.length) directions[trip.direction_id].stops = stops
+				i = isServiceActive(trip.service_id, date) && gtfs.stop_times.listIndexOf("trip_id", trip.trip_id)
+				if (i && (stop = gtfs.stop_times[i]) && stop.arrival_time >= start && stop.departure_time <= end) {
+					j = directions[dir].findIndex((stops) => stops[0].arrival_time > stop.arrival_time)
+					if (j == -1) j = directions[dir].length
+					if (j < limit) {
+						stop = gtfs.stop_times.listFilter("trip_id", trip.trip_id, i, true)
+						directions[dir].splice(j, 0, stop)
+						if (!directions[dir].stops) directions[dir].stops = stop
 					}
+
 				}
 			}
+			console.timeEnd("route")
 
 			function update(tick) {
-				let trips, times, rt, delay, sti, query
+				let trips, times, rt, delay, sti, stops, shapes, tempShapes, query
 				let finalDirections = []
 				date = new Date()
 
@@ -611,7 +660,7 @@ self.onmessage = (data) => {
 						else return 0
 					}).slice(0, limit)
 					if (trips.length && trips[0].length) {
-						stops = directions[direction].stops.map((stop) => [stop.stop_id, gtfs.stops.find((a) => a.stop_id == stop.stop_id)?.stop_name])
+						stops = directions[direction].stops.map((stop) => [stop.stop_id, gtfs.stops.listFind("stop_id", stop.stop_id)?.stop_name])
 						times = Array.from({ length: stops.length }, () => [])
 
 						// if (direction == 0) {
@@ -654,17 +703,27 @@ self.onmessage = (data) => {
 								})
 							} else trip.forEach((stop, i) => times[i]?.push([stop.arrival_time, stop.departure_time]))
 						})
+						tempShapes = gtfs.shapes[directions[direction].shape]
+						shapes = new Array(tempShapes.length)
+						for (let index = 0; index < tempShapes.length; ++index) {
+							shapes[index] = [tempShapes.listGet(index, 1), tempShapes.listGet(index, 2)]
+						}
 						finalDirections[direction] = {
 							stops,
 							times,
-							shapes: gtfs.shapes[directions[direction].shape],
+							shapes,
 							trips: trips.map((trip) => [trip[0].trip_id, trip.length && trip.reduce((acc, stop, i) => acc + `(stop_quarter_hour = '${availability12Hr(stop.arrival_time)}' AND stop LIKE '${i + 1} %')${i < trip.length - 1 ? " OR " : ""}`, `SELECT stop, availability FROM "2c90611f-9631-4070-9bb7-7138df89bff7" WHERE route = '${route.route_short_name}' AND direction = '${direction == 0 ? "Inbound" : "Outbound"}' AND day_type = '${daysTitle[date.getDay()]}' AND (`) + ") LIMIT " + trip.length]),
 							valid: true
 						}
 					} else if (directions[direction].stops) {
+						tempShapes = gtfs.shapes[directions[direction].shape]
+						shapes = new Array(tempShapes.length)
+						for (let index = 0; index < tempShapes.length; ++index) {
+							shapes[index] = [tempShapes.listGet(index, 1), tempShapes.listGet(index, 2)]
+						}
 						finalDirections[direction] = {
-							stops: directions[direction].stops.map((stop) => [stop.stop_id, gtfs.stops.find((a) => a.stop_id == stop.stop_id)?.stop_name]),
-							shapes: gtfs.shapes[directions[direction].shape]
+							stops: directions[direction].stops.map((stop) => [stop.stop_id, gtfs.stops.listFind("stop_id", stop.stop_id)?.stop_name]),
+							shapes
 						}
 					}
 				}
@@ -678,7 +737,7 @@ self.onmessage = (data) => {
 			break
 		}
 		case "trip_info": {
-			const trip = gtfs.trips.find((route) => route.trip_id == request.id)
+			const trip = gtfs.trips.listFind("trip_id", request.id)
 			if (!trip) return self.postMessage({ command: "trip_info" })
 
 			self.postMessage({ command: "trip_info", trip, tripUpdate: lastTripUpdates?.find((({ tripUpdate }) => tripUpdate.trip.tripId == request.id)), vehiclePosition: lastVehiclePositions?.find((({ vehicle }) => vehicle.tripDescriptor.tripId == request.id)), tick: request.tick })
@@ -686,7 +745,7 @@ self.onmessage = (data) => {
 		}
 		case "trip_timetable": {
 			const tripId = request.id
-			const trip = gtfs.trips.find((trip) => trip.trip_id == tripId)
+			const trip = gtfs.trips.listFind("trip_id", tripId)
 			if (!trip) return self.postMessage({ command: "trip_timetable", tick: request.tick })
 
 			function update(tick) {

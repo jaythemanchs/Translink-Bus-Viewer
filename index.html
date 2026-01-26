@@ -7,27 +7,27 @@
 	<meta name="HandheldFriendly" content="true">
 	<meta name="mobile-web-app-capable" content="yes">
 	<title>Translink Bus Viewer</title>
-	<link rel="stylesheet" href="/css/leaflet.css" />
-	<link href="/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="/css/bootstrap-icons.min.css">
-	<link rel="manifest" href="/manifest.webmanifest" />
-	<link rel="shortcut icon" href="/images/icon_color.svg" type="image/svg+xml">
-	<link rel="apple-touch-icon" sizes="48x48" href="/images/icon_48x48.png" type="image/x-icon">
-	<link rel="apple-touch-icon" sizes="72x72" href="/images/icon_72x72.png" type="image/x-icon">
-	<link rel="apple-touch-icon" sizes="96x96" href="/images/icon_96x96.png" type="image/x-icon">
-	<link rel="apple-touch-icon" sizes="128x128" href="/images/icon_128x128.png" type="image/x-icon">
-	<link rel="apple-touch-icon" sizes="192x192" href="/images/icon_192x192.png" type="image/x-icon">
-	<link rel="apple-touch-icon" sizes="384x384" href="/images/icon_384x384.png" type="image/x-icon">
-	<link rel="apple-touch-icon" sizes="512x512" href="/images/icon_512x512.png" type="image/x-icon">
-	<script src="/js/leaflet.js"></script>
-	<script src="/js/bootstrap.bundle.min.js"></script>
+	<link rel="stylesheet" href="./css/leaflet.css" />
+	<link href="./css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="./css/bootstrap-icons.min.css">
+	<link rel="manifest" href="./manifest.webmanifest" />
+	<link rel="shortcut icon" href="./images/icon_color.svg" type="image/svg+xml">
+	<link rel="apple-touch-icon" sizes="48x48" href="./images/icon_48x48.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="72x72" href="./images/icon_72x72.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="96x96" href="./images/icon_96x96.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="128x128" href="./images/icon_128x128.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="192x192" href="./images/icon_192x192.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="384x384" href="./images/icon_384x384.png" type="image/x-icon">
+	<link rel="apple-touch-icon" sizes="512x512" href="./images/icon_512x512.png" type="image/x-icon">
+	<script src="./js/leaflet.js"></script>
+	<script src="./js/bootstrap.bundle.min.js"></script>
 	<style>
 		@font-face {
 			font-family: "Font Awesome 5 Free";
 			font-style: normal;
 			font-weight: 900;
 			font-display: block;
-			src: url(/fonts/awesome.woff2) format("woff2");
+			src: url(./fonts/awesome.woff2) format("woff2");
 		}
 
 		@media (max-height: 576px) {
@@ -38,6 +38,7 @@
 
 		@media (min-width: 724px) and (min-height: 577px) {
 			.float-navbar {
+				padding-left: .5rem !important;
 				margin: 1rem;
 				border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
 				border-radius: var(--bs-border-radius-pill) !important;
@@ -391,7 +392,7 @@
 </head>
 
 <body class="bg-body-secondary">
-	<nav class="bg-body-secondary ps-2 pe-3 py-2 hstack z-1 float-navbar head-navbar">
+	<nav class="bg-body-secondary px-3 py-2 hstack z-1 float-navbar head-navbar">
 		<div class="dropdown form-group flex-fill has-search me-2 loading">
 			<span class="bi bi-search form-control-feedback" aria-hidden="true"></span>
 			<input type="text" autocomplete="off" id="main_search" class="form-control rounded-pill"
@@ -467,19 +468,19 @@
 		</div>
 	</div>
 
-	<ul class="nav bg-body-secondary nav-fill z-1 float-navbar foot-navbar">
+	<ul class="nav bg-body-secondary nav-fill z-1 float-navbar foot-navbar d-none">
 		<li class="nav-item">
 			<a class="nav-link active link-body-emphasis" aria-current="page" title="Home"><i
 					class="bi bi-house-door-fill fs-2"></i></a>
 		</li>
-		<li class="nav-item">
-			<a class="nav-link link-secondary" title="Routes"><i class="bi bi-map-fill fs-2"></i></a>
+		<li class="nav-item" id="scan_nfc">
+			<a class="nav-link link-secondary" title="Scan NFC"><i class="bi bi-upc-scan fs-2"></i></a>
 		</li>
-		<li class="nav-item">
+		<!-- <li class="nav-item">
 			<a class="nav-link link-secondary" title="Settings"><i class="bi bi-gear-fill fs-2"></i></a>
-		</li>
+		</li> -->
 	</ul>
-	<script src="/js/index.js" type="module"></script>
+	<script src="./js/index.js" type="module"></script>
 </body>
 
 </html>
